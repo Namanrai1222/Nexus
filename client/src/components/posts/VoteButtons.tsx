@@ -44,7 +44,7 @@ export default function VoteButtons({
         onClick={() => handleVote(1)}
         disabled={isVoting}
         className={cn(
-          'p-1 rounded hover:bg-primary/10 hover:text-primary transition-colors',
+          'p-1 rounded-md hover:bg-purple/10 hover:text-purple transition-colors text-subtext',
           'disabled:opacity-50 disabled:cursor-not-allowed'
         )}
         aria-label="Upvote"
@@ -54,7 +54,7 @@ export default function VoteButtons({
 
       <span
         className={cn(
-          'font-bold tabular-nums',
+          'font-bold tabular-nums text-text',
           size === 'sm' ? 'text-xs' : 'text-sm'
         )}
       >
@@ -65,7 +65,7 @@ export default function VoteButtons({
         onClick={() => handleVote(-1)}
         disabled={isVoting}
         className={cn(
-          'p-1 rounded hover:bg-destructive/10 hover:text-destructive transition-colors',
+          'p-1 rounded-md hover:bg-red/10 hover:text-red transition-colors text-subtext',
           'disabled:opacity-50 disabled:cursor-not-allowed'
         )}
         aria-label="Downvote"

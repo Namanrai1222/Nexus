@@ -29,7 +29,7 @@ export default function Navbar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/feed?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
     }
   };

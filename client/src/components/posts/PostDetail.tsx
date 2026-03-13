@@ -1,12 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { MessageSquare, Eye, Pin, Lock, Pencil, Trash2, ExternalLink } from 'lucide-react';
+import { MessageSquare, Eye, Pin, Lock, Pencil, Trash2, ExternalLink, X, Check, Loader2 } from 'lucide-react';
 import type { Post } from '../../types';
 import VoteButtons from './VoteButtons';
-import Avatar from '../shared/Avatar';
-import Badge from '../shared/Badge';
 import { formatDate, formatCount } from '../../utils/formatDate';
-import { useVotePost, useDeletePost } from '../../hooks/usePosts';
+import { useVotePost, useDeletePost, useUpdatePost } from '../../hooks/usePosts';
 import { useAuthStore } from '../../store/authStore';
 import { cn } from '../../utils/cn';
 import { useNavigate } from 'react-router-dom';
@@ -18,9 +17,14 @@ interface PostDetailProps {
 export default function PostDetail({ post }: PostDetailProps) {
   const voteMutation = useVotePost();
   const deleteMutation = useDeletePost();
+  const updateMutation = useUpdatePost();
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const isAuthor = user?.id === post.authorId;
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(post.title);
+  const [editBody, setEditBody] = useState(post.body);
 
   const handleVote = (value: 1 | -1) => {
     voteMutation.mutate({ postId: post.id, value });
@@ -34,11 +38,30 @@ export default function PostDetail({ post }: PostDetailProps) {
     }
   };
 
+  const handleEdit = () => {
+    setEditTitle(post.title);
+    setEditBody(post.body);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditTitle(post.title);
+    setEditBody(post.body);
+  };
+
+  const handleSaveEdit = () => {
+    updateMutation.mutate(
+      { postId: post.id, title: editTitle, body: editBody },
+      { onSuccess: () => setIsEditing(false) }
+    );
+  };
+
   return (
-    <article className="bg-card rounded-lg border border-border overflow-hidden">
+    <article className="card-nx overflow-hidden">
       <div className="flex">
         {/* Vote column */}
-        <div className="hidden sm:flex flex-col items-center py-4 px-3 bg-muted/30">
+        <div className="hidden sm:flex flex-col items-center py-4 px-3 bg-bg3/50">
           <VoteButtons
             score={post.score}
             onVote={handleVote}
@@ -49,36 +72,43 @@ export default function PostDetail({ post }: PostDetailProps) {
         {/* Content */}
         <div className="flex-1 p-4 sm:p-6 min-w-0">
           {/* Meta */}
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mb-3">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-subtext mb-3">
             <Link
-              to={`/c/${post.community.slug}`}
-              className="font-semibold text-foreground hover:text-primary transition-colors"
+              to={`/r/${post.community.slug}`}
+              className="font-semibold text-text hover:text-purple transition-colors"
             >
-              c/{post.community.name}
+              r/{post.community.name}
             </Link>
             <span>•</span>
             <Link
               to={`/u/${post.author.username}`}
-              className="flex items-center gap-1 hover:text-foreground transition-colors"
+              className="flex items-center gap-1 hover:text-text transition-colors"
             >
-              <Avatar
-                src={post.author.avatarUrl}
-                username={post.author.username}
-                size="sm"
-                className="w-5 h-5 ring-0"
-              />
+              <div className="w-5 h-5 rounded-full bg-purple/20 flex items-center justify-center text-[9px] font-bold text-purple">
+                {post.author.username[0].toUpperCase()}
+              </div>
               {post.author.username}
             </Link>
             <span>•</span>
             <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
-            {post.isPinned && <Pin className="w-3 h-3 text-primary" />}
-            {post.isLocked && <Lock className="w-3 h-3 text-yellow-500" />}
+            {post.isPinned && <Pin className="w-3 h-3 text-purple" />}
+            {post.isLocked && <Lock className="w-3 h-3 text-yellow" />}
           </div>
 
           {/* Title */}
-          <h1 className="text-xl sm:text-2xl font-bold leading-tight mb-4">
-            {post.title}
-          </h1>
+          {isEditing ? (
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="input-nx text-xl sm:text-2xl font-display font-bold mb-4"
+              maxLength={300}
+            />
+          ) : (
+            <h1 className="text-xl sm:text-2xl font-display font-bold leading-tight text-text mb-4">
+              {post.title}
+            </h1>
+          )}
 
           {/* Link */}
           {post.type === 'LINK' && post.linkUrl && (
@@ -105,25 +135,53 @@ export default function PostDetail({ post }: PostDetailProps) {
           )}
 
           {/* Body (Markdown) */}
-          {post.body && (
+          {isEditing ? (
+            <div className="mb-4">
+              <textarea
+                value={editBody}
+                onChange={(e) => setEditBody(e.target.value)}
+                rows={8}
+                className="input-nx resize-y min-h-[150px] font-mono text-sm w-full"
+              />
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={updateMutation.isPending}
+                  className="btn-primary py-1.5 px-4 text-sm flex items-center gap-1.5"
+                >
+                  {updateMutation.isPending ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Check size={14} />
+                  )}
+                  Save
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg border border-border text-sm text-subtext hover:text-text transition-colors"
+                >
+                  <X size={14} />
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : post.body ? (
             <div className="prose prose-sm dark:prose-invert max-w-none mb-4">
               <ReactMarkdown>{post.body}</ReactMarkdown>
             </div>
-          )}
+          ) : null}
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
               {post.tags.map((pt) => (
-                <Badge key={pt.tag.id} variant="secondary">
-                  #{pt.tag.name}
-                </Badge>
+                <span key={pt.tag.id} className="tag-nx text-xs">#{pt.tag.name}</span>
               ))}
             </div>
           )}
 
           {/* Actions bar */}
-          <div className="flex items-center gap-4 pt-3 border-t border-border text-xs text-muted-foreground">
+          <div className="flex items-center gap-4 pt-3 border-t border-border text-xs text-subtext">
             <div className="sm:hidden">
               <VoteButtons
                 score={post.score}
@@ -147,8 +205,8 @@ export default function PostDetail({ post }: PostDetailProps) {
             {isAuthor && (
               <>
                 <button
-                  onClick={() => {/* TODO: Inline edit */}}
-                  className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                  onClick={handleEdit}
+                  className="flex items-center gap-1.5 hover:text-text transition-colors"
                 >
                   <Pencil className="w-4 h-4" />
                   Edit
@@ -157,7 +215,7 @@ export default function PostDetail({ post }: PostDetailProps) {
                   onClick={handleDelete}
                   disabled={deleteMutation.isPending}
                   className={cn(
-                    'flex items-center gap-1.5 hover:text-destructive transition-colors',
+                    'flex items-center gap-1.5 hover:text-red transition-colors',
                     deleteMutation.isPending && 'opacity-50'
                   )}
                 >

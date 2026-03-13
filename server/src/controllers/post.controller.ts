@@ -35,7 +35,7 @@ export const createPost = asyncHandler(async (req: AuthRequest, res: Response) =
  * Get paginated posts with sorting & filtering
  */
 export const getPosts = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { page, limit, sort, community, tag } = req.query;
+  const { page, limit, sort, community, tag, search } = req.query;
 
   const result = await postService.getAll({
     page: page ? parseInt(page as string) : undefined,
@@ -43,6 +43,7 @@ export const getPosts = asyncHandler(async (req: AuthRequest, res: Response) => 
     sort: sort as 'hot' | 'new' | 'top' | undefined,
     community: community as string | undefined,
     tag: tag as string | undefined,
+    search: search as string | undefined,
   });
 
   res.status(200).json(new ApiResponse(200, 'Posts fetched', result));

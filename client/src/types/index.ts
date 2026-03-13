@@ -143,3 +143,28 @@ export interface NotificationsResponse {
   page: number;
   totalPages: number;
 }
+
+export interface LandingStats {
+  totalUsers: number;
+  totalPosts: number;
+  totalCommunities: number;
+  totalComments: number;
+}
+
+export interface FeedSliderSettings {
+  recencyWeight: number;
+  popularityWeight: number;
+  diversityWeight: number;
+  communityWeight: number;
+  personalWeight: number;
+}
+
+export type FeedSort = 'hot' | 'new' | 'top';
+export type PostType = 'TEXT' | 'IMAGE' | 'LINK';
+export type Role = 'USER' | 'MODERATOR' | 'ADMIN';
+
+export interface AIQualityResult {
+  score: number;
+  suggestions: string[];
+  similarPosts: Array<{ id: string; title: string; slug: string; score: number }>;
+}

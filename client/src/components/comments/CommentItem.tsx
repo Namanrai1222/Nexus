@@ -4,7 +4,6 @@ import { MessageSquare, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import type { Comment } from '../../types';
 import VoteButtons from '../posts/VoteButtons';
-import Avatar from '../shared/Avatar';
 import CommentEditor from './CommentEditor';
 import { formatDate } from '../../utils/formatDate';
 import { useVoteComment, useDeleteComment, useCreateComment } from '../../hooks/useComments';
@@ -48,7 +47,7 @@ export default function CommentItem({ comment, postId, depth = 0 }: CommentItemP
   if (comment.isDeleted) {
     return (
       <div className={cn('py-2', depth > 0 && 'ml-6 border-l-2 border-border pl-4')}>
-        <p className="text-sm text-muted-foreground italic">[deleted]</p>
+        <p className="text-sm text-subtext italic">[deleted]</p>
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-2">
             {comment.replies.map((reply) => (
@@ -71,23 +70,20 @@ export default function CommentItem({ comment, postId, depth = 0 }: CommentItemP
       <div className="flex items-center gap-2">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-subtext hover:text-text"
         >
           {collapsed ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
         </button>
         <Link to={`/u/${comment.author.username}`} className="flex items-center gap-1.5">
-          <Avatar
-            src={comment.author.avatarUrl}
-            username={comment.author.username}
-            size="sm"
-            className="w-5 h-5 ring-0"
-          />
-          <span className="text-xs font-medium hover:text-primary transition-colors">
+          <div className="w-5 h-5 rounded-full bg-purple/20 flex items-center justify-center text-[8px] font-bold text-purple">
+            {comment.author.username[0].toUpperCase()}
+          </div>
+          <span className="text-xs font-medium text-text hover:text-purple transition-colors">
             {comment.author.username}
           </span>
         </Link>
-        <span className="text-xs text-muted-foreground">•</span>
-        <time className="text-xs text-muted-foreground">{formatDate(comment.createdAt)}</time>
+        <span className="text-xs text-subtext">•</span>
+        <time className="text-xs text-subtext">{formatDate(comment.createdAt)}</time>
       </div>
 
       {!collapsed && (
@@ -99,7 +95,7 @@ export default function CommentItem({ comment, postId, depth = 0 }: CommentItemP
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3 mt-1.5 text-xs text-subtext">
               <VoteButtons
                 score={comment.score}
                 onVote={handleVote}
@@ -111,7 +107,7 @@ export default function CommentItem({ comment, postId, depth = 0 }: CommentItemP
               {depth < MAX_DEPTH && (
                 <button
                   onClick={() => setShowReply(!showReply)}
-                  className="flex items-center gap-1 hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 hover:text-text transition-colors"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
                   Reply
@@ -122,7 +118,7 @@ export default function CommentItem({ comment, postId, depth = 0 }: CommentItemP
                 <button
                   onClick={handleDelete}
                   disabled={deleteMutation.isPending}
-                  className="flex items-center gap-1 hover:text-destructive transition-colors"
+                  className="flex items-center gap-1 hover:text-red transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Delete

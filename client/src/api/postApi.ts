@@ -16,6 +16,7 @@ interface GetPostsParams {
   sort?: 'hot' | 'new' | 'top';
   community?: string;
   tag?: string;
+  search?: string;
 }
 
 export const postApi = {

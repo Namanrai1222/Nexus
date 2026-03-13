@@ -5,6 +5,7 @@ import commentRoutes from './comment.routes';
 import userRoutes from './user.routes';
 import communityRoutes from './community.routes';
 import notificationRoutes from './notification.routes';
+import statsRoutes from './stats.routes';
 
 const router = Router();
 
@@ -14,6 +15,7 @@ router.use('/comments', commentRoutes);
 router.use('/users', userRoutes);
 router.use('/communities', communityRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/stats', statsRoutes);
 
 // Health check
 router.get('/health', (_req, res) => {

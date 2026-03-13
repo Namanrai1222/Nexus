@@ -22,7 +22,7 @@ export default function CommentThread({ postId, isLocked = false }: CommentThrea
 
   return (
     <div className="mt-6">
-      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+      <h2 className="text-lg font-display font-semibold text-text mb-4 flex items-center gap-2">
         <MessageSquare className="w-5 h-5" />
         Comments
       </h2>
@@ -37,7 +37,7 @@ export default function CommentThread({ postId, isLocked = false }: CommentThrea
           />
         </div>
       ) : (
-        <div className="mb-6 rounded-lg border border-border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
+        <div className="mb-6 rounded-xl border border-border bg-bg3 p-4 text-center text-sm text-subtext">
           🔒 This post is locked. New comments are not allowed.
         </div>
       )}
@@ -48,8 +48,8 @@ export default function CommentThread({ postId, isLocked = false }: CommentThrea
           <Loader text="Loading comments..." />
         </div>
       ) : comments.length === 0 ? (
-        <div className="py-12 text-center text-sm text-muted-foreground">
-          <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30" />
+        <div className="py-12 text-center text-sm text-subtext">
+          <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-30 text-subtext" />
           <p>No comments yet. Be the first to share your thoughts!</p>
         </div>
       ) : (

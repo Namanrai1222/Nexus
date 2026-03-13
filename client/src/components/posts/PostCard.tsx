@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom';
 import { MessageSquare, Eye, Pin, Lock, ExternalLink, Image } from 'lucide-react';
 import type { Post } from '../../types';
 import VoteButtons from './VoteButtons';
-import Avatar from '../shared/Avatar';
-import Badge from '../shared/Badge';
 import { formatDate, formatCount } from '../../utils/formatDate';
 import { useVotePost } from '../../hooks/usePosts';
 import { cn } from '../../utils/cn';
@@ -19,16 +17,18 @@ export default function PostCard({ post }: PostCardProps) {
     voteMutation.mutate({ postId: post.id, value });
   };
 
+  const postUrl = `/r/${post.community.slug}/post/${post.slug}`;
+
   return (
     <article
       className={cn(
-        'group bg-card rounded-lg border border-border hover:border-primary/30 transition-colors',
-        post.isPinned && 'ring-1 ring-primary/20'
+        'group card-nx hover:border-purple/30 transition-colors',
+        post.isPinned && 'ring-1 ring-purple/20'
       )}
     >
       <div className="flex">
         {/* Vote column */}
-        <div className="hidden sm:flex flex-col items-center py-3 px-2 bg-muted/30 rounded-l-lg">
+        <div className="hidden sm:flex flex-col items-center py-3 px-2 bg-bg3/50 rounded-l-xl">
           <VoteButtons
             score={post.score}
             onVote={handleVote}
@@ -39,64 +39,47 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Content */}
         <div className="flex-1 p-3 sm:p-4 min-w-0">
           {/* Meta line */}
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mb-1">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-subtext mb-1">
             <Link
-              to={`/c/${post.community.slug}`}
-              className="font-semibold text-foreground hover:text-primary transition-colors"
+              to={`/r/${post.community.slug}`}
+              className="font-semibold text-text hover:text-purple transition-colors"
             >
-              c/{post.community.name}
+              r/{post.community.name}
             </Link>
             <span>•</span>
             <Link
               to={`/u/${post.author.username}`}
-              className="flex items-center gap-1 hover:text-foreground transition-colors"
+              className="flex items-center gap-1 hover:text-text transition-colors"
             >
-              <Avatar
-                src={post.author.avatarUrl}
-                username={post.author.username}
-                size="sm"
-                className="w-4 h-4 ring-0"
-              />
+              <div className="w-4 h-4 rounded-full bg-purple/20 flex items-center justify-center text-[8px] font-bold text-purple">
+                {post.author.username[0].toUpperCase()}
+              </div>
               {post.author.username}
             </Link>
             <span>•</span>
             <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
-            {post.isPinned && (
-              <Pin className="w-3 h-3 text-primary" />
-            )}
-            {post.isLocked && (
-              <Lock className="w-3 h-3 text-yellow-500" />
-            )}
+            {post.isPinned && <Pin className="w-3 h-3 text-purple" />}
+            {post.isLocked && <Lock className="w-3 h-3 text-yellow" />}
           </div>
 
           {/* Title */}
-          <Link to={`/post/${post.slug}`} className="block group/title">
-            <h2 className="text-base font-semibold leading-snug group-hover/title:text-primary transition-colors line-clamp-2">
-              {post.type === 'LINK' && (
-                <ExternalLink className="inline w-4 h-4 mr-1 opacity-60" />
-              )}
-              {post.type === 'IMAGE' && (
-                <Image className="inline w-4 h-4 mr-1 opacity-60" />
-              )}
+          <Link to={postUrl} className="block group/title">
+            <h2 className="text-base font-semibold leading-snug text-text group-hover/title:text-purple transition-colors line-clamp-2">
+              {post.type === 'LINK' && <ExternalLink className="inline w-4 h-4 mr-1 opacity-60" />}
+              {post.type === 'IMAGE' && <Image className="inline w-4 h-4 mr-1 opacity-60" />}
               {post.title}
             </h2>
           </Link>
 
           {/* Body preview */}
           {post.body && post.type === 'TEXT' && (
-            <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-              {post.body}
-            </p>
+            <p className="mt-1 text-sm text-subtext line-clamp-2">{post.body}</p>
           )}
 
           {/* Image preview */}
           {post.imageUrl && (
-            <Link to={`/post/${post.slug}`} className="block mt-2">
-              <img
-                src={post.imageUrl}
-                alt={post.title}
-                className="max-h-64 rounded-md object-cover"
-              />
+            <Link to={postUrl} className="block mt-2">
+              <img src={post.imageUrl} alt={post.title} className="max-h-64 rounded-lg object-cover" />
             </Link>
           )}
 
@@ -104,16 +87,13 @@ export default function PostCard({ post }: PostCardProps) {
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {post.tags.map((pt) => (
-                <Badge key={pt.tag.id} variant="secondary" className="text-[10px]">
-                  {pt.tag.name}
-                </Badge>
+                <span key={pt.tag.id} className="tag-nx text-[10px]">#{pt.tag.name}</span>
               ))}
             </div>
           )}
 
           {/* Actions bar */}
-          <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-            {/* Mobile vote */}
+          <div className="flex items-center gap-4 mt-2 text-xs text-subtext">
             <div className="sm:hidden">
               <VoteButtons
                 score={post.score}
@@ -125,8 +105,8 @@ export default function PostCard({ post }: PostCardProps) {
             </div>
 
             <Link
-              to={`/post/${post.slug}`}
-              className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              to={postUrl}
+              className="flex items-center gap-1.5 hover:text-text transition-colors"
             >
               <MessageSquare className="w-4 h-4" />
               <span>{formatCount(post._count?.comments ?? 0)} comments</span>

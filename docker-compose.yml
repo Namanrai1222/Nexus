@@ -45,11 +45,11 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
     restart: unless-stopped
     depends_on:
       - server
-    environment:
-      VITE_API_BASE_URL: /api/v1
     ports:
       - '5173:80'
 

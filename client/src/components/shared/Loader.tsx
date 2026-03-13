@@ -16,8 +16,8 @@ const sizeClasses = {
 export default function Loader({ size = 'md', className, text }: LoaderProps) {
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
-      <Loader2 className={cn('animate-spin text-primary', sizeClasses[size])} />
-      {text && <p className="text-sm text-muted-foreground">{text}</p>}
+      <Loader2 className={cn('animate-spin text-purple', sizeClasses[size])} />
+      {text && <p className="text-sm text-subtext">{text}</p>}
     </div>
   );
 }

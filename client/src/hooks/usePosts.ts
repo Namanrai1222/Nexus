@@ -8,6 +8,7 @@ interface UsePostsOptions {
   sort?: 'hot' | 'new' | 'top';
   community?: string;
   tag?: string;
+  search?: string;
 }
 
 export function usePosts(options: UsePostsOptions = {}) {
@@ -72,6 +73,23 @@ export function useDeletePost() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to delete post');
+    },
+  });
+}
+
+export function useUpdatePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ postId, title, body }: { postId: string; title?: string; body?: string }) =>
+      postApi.update(postId, { title, body }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post'] });
+      toast.success('Post updated');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update post');
     },
   });
 }

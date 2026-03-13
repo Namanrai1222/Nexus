@@ -53,24 +53,24 @@ export default function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative h-9 w-9 flex items-center justify-center rounded-lg hover:bg-accent transition-colors"
+        className="relative h-9 w-9 flex items-center justify-center rounded-lg hover:bg-bg3 transition-colors text-subtext hover:text-text"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-bold">
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red text-[10px] text-white flex items-center justify-center font-bold">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-lg border border-border bg-card shadow-lg animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl border border-border bg-card shadow-xl">
           <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <h3 className="text-sm font-semibold">Notifications</h3>
+            <h3 className="text-sm font-semibold text-text">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 onClick={() => markAllReadMutation.mutate()}
-                className="text-xs text-primary hover:underline"
+                className="text-xs text-purple hover:underline"
               >
                 Mark all read
               </button>
@@ -78,7 +78,7 @@ export default function NotificationBell() {
           </div>
 
           {notifications.length === 0 ? (
-            <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+            <div className="px-4 py-8 text-center text-sm text-subtext">
               No notifications yet
             </div>
           ) : (
@@ -88,13 +88,13 @@ export default function NotificationBell() {
                   key={n.id}
                   href={n.link || '#'}
                   className={cn(
-                    'block px-4 py-3 border-b border-border last:border-0 hover:bg-accent/50 transition-colors',
-                    !n.isRead && 'bg-primary/5'
+                    'block px-4 py-3 border-b border-border last:border-0 hover:bg-bg3 transition-colors',
+                    !n.isRead && 'bg-purple/5'
                   )}
                   onClick={() => setOpen(false)}
                 >
-                  <p className="text-sm">{n.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{formatDate(n.createdAt)}</p>
+                  <p className="text-sm text-text">{n.message}</p>
+                  <p className="text-xs text-subtext mt-1">{formatDate(n.createdAt)}</p>
                 </a>
               ))}
             </div>

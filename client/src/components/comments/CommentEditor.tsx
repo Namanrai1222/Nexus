@@ -35,12 +35,12 @@ export default function CommentEditor({
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-lg border border-border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-        <a href="/login" className="text-primary hover:underline font-medium">
+      <div className="rounded-lg border border-border bg-bg3 p-4 text-center text-sm text-subtext">
+        <a href="/login" className="text-purple hover:underline font-medium">
           Log in
         </a>{' '}
         or{' '}
-        <a href="/register" className="text-primary hover:underline font-medium">
+        <a href="/register" className="text-purple hover:underline font-medium">
           sign up
         </a>{' '}
         to leave a comment.
@@ -52,12 +52,12 @@ export default function CommentEditor({
     <form onSubmit={handleSubmit}>
       <div
         className={cn(
-          'rounded-lg border border-border focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 transition-all',
+          'rounded-xl border border-border focus-within:border-purple/50 focus-within:ring-1 focus-within:ring-purple/20 transition-all bg-card',
           parentId && 'border-dashed'
         )}
       >
-        <div className="px-3 py-2 text-xs text-muted-foreground">
-          Comment as <span className="font-medium text-foreground">{user?.username}</span>
+        <div className="px-3 py-2 text-xs text-subtext">
+          Comment as <span className="font-medium text-text">{user?.username}</span>
         </div>
         <textarea
           value={body}
@@ -65,14 +65,14 @@ export default function CommentEditor({
           placeholder={placeholder}
           autoFocus={autoFocus}
           rows={parentId ? 3 : 4}
-          className="w-full px-3 pb-2 bg-transparent text-sm resize-y focus:outline-none min-h-[60px]"
+          className="w-full px-3 pb-2 bg-transparent text-sm text-text resize-y focus:outline-none min-h-[60px] placeholder:text-subtext"
         />
-        <div className="flex items-center justify-end gap-2 px-3 py-2 border-t border-border bg-muted/30 rounded-b-lg">
+        <div className="flex items-center justify-end gap-2 px-3 py-2 border-t border-border bg-bg3/50 rounded-b-xl">
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-subtext hover:text-text transition-colors"
             >
               Cancel
             </button>
@@ -80,7 +80,7 @@ export default function CommentEditor({
           <button
             type="submit"
             disabled={isPending || !body.trim()}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple text-white text-xs font-medium hover:bg-purple/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPending ? (
               <Loader2 className="w-3 h-3 animate-spin" />

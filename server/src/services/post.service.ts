@@ -19,6 +19,7 @@ interface GetPostsQuery {
   sort?: 'hot' | 'new' | 'top';
   community?: string;
   tag?: string;
+  search?: string;
 }
 
 export const postService = {
@@ -73,7 +74,7 @@ export const postService = {
   },
 
   async getAll(query: GetPostsQuery) {
-    const { page = 1, limit = 20, sort = 'hot', community, tag } = query;
+    const { page = 1, limit = 20, sort = 'hot', community, tag, search } = query;
     const skip = (page - 1) * limit;
 
     const orderBy =
@@ -89,6 +90,12 @@ export const postService = {
     }
     if (tag) {
       where.tags = { some: { tag: { name: tag } } };
+    }
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { body: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     const [posts, total] = await Promise.all([
