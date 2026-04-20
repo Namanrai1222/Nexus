@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Admin Console</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .app-shell { grid-template-rows: auto 1fr; }
+        .admin-layout {
+            max-width: 1000px; margin: 0 auto; padding: var(--space-6) var(--space-4);
+        }
+        .report-card {
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            padding: var(--space-4);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-4);
+            border-left: 3px solid var(--accent);
+        }
+        .report-meta {
+            font-size: 13px; color: var(--text-secondary);
+            margin-bottom: var(--space-3);
+            display: flex; gap: 8px; align-items: center; justify-content: space-between;
+        }
+        .report-reason {
+            font-family: var(--font-mono); font-size: 14px; color: var(--danger);
+            border-left: 2px solid var(--danger); padding-left: 8px; margin-bottom: var(--space-3);
+        }
+        .report-content { font-size: 15px; margin-bottom: var(--space-4); background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: var(--space-3); border-radius: var(--radius-sm); }
+    </style>
+</head>
+<body class="app-shell">
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="feed.html" class="logo">NEXUS<span style="font-size: 16px; margin-left: 8px; color: var(--danger);">[ADMIN]</span></a>
+            <div class="nav-links">
+                <a href="feed.html" class="btn btn-ghost" style="padding: 6px 12px; font-size: 13px;">Feed</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="admin-layout">
+        <h1 class="display-text mb-6">Moderation Queue</h1>
+        <div id="reports-container">
+            <div class="mono text-muted">LOADING QUEUE...</div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { api } from './js/api.js';
+        import { auth } from './js/auth.js';
+        import { timeAgo, escapeHTML, toast } from './js/utils.js';
+
+        if (!auth.isLoggedIn()) {
+            window.location.href = 'auth.html';
+        }
+
+        const renderQueue = async () => {
+            try {
+                const res = await api.request('admin/reports.php');
+                const reports = res.data;
+                const container = document.getElementById('reports-container');
+                
+                if (reports.length === 0) {
+                    container.innerHTML = '<div class="text-success mono" style="font-size:14px; text-transform:uppercase; border:1px solid var(--success); padding:16px;">Queue is clear.</div>';
+                    return;
+                }
+
+                container.innerHTML = reports.map(r => {
+                    const isPost = !!r.post_title;
+                    const contentLink = isPost ? `<a href="post.html?id=${r.post_id}" style="color:var(--accent);">Post: ${escapeHTML(r.post_title)}</a>` : `Reply context`;
+                    const contentPreview = isPost ? 'Refer to post link' : escapeHTML(r.reply_excerpt || '');
+
+                    return `
+                    <div class="report-card" id="r-${r.id}" style="${r.status !== 'pending' ? 'opacity:0.4; border-left-color:var(--border);' : ''}">
+                        <div class="report-meta">
+                            <div>
+                                <span class="mono badge" style="${r.status === 'pending' ? 'background:var(--accent); color:#000;' : ''}">${r.status.toUpperCase()}</span>
+                                Reported by <strong>${escapeHTML(r.reporter)}</strong> ${timeAgo(r.created_at)}
+                            </div>
+                            <span class="mono" style="color:var(--text-ghost);">ID: ${r.id}</span>
+                        </div>
+                        <div class="report-reason">${escapeHTML(r.reason)}</div>
+                        <div class="report-content">
+                            <div class="mb-2" style="font-size:13px; font-family:var(--font-mono);">${contentLink}</div>
+                            ${contentPreview}
+                        </div>
+                        <div class="flex gap-2" style="flex-wrap: wrap;">
+                            ${r.status === 'pending' ? `
+                                <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 13px;" onclick="handleAction(${r.id}, 'dismiss')">Dismiss</button>
+                                <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 13px; color:var(--danger); border-color:var(--danger);" onclick="handleAction(${r.id}, '${isPost ? 'delete_post' : 'delete_reply'}')">Delete Content</button>
+                                <button class="btn btn-ghost" style="padding: 6px 12px; font-size: 13px; background:var(--danger); border-color:var(--danger); color:#000;" onclick="if(confirm('Are you sure? This bans the user permanently.')) handleAction(${r.id}, 'ban_user')">Ban Author</button>
+                            ` : `<span class="mono text-ghost" style="font-size:12px;">[ACTION RESOLVED]</span>`}
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                document.getElementById('reports-container').innerHTML = `<div class="mono" style="color:var(--danger); font-size: 14px; border: 1px solid var(--danger); padding: 16px;">AUTHORIZATION FAILED (${e.message})</div>`;
+            }
+        };
+
+        window.handleAction = async (reportId, action) => {
+            try {
+                await api.request('admin/action.php', 'POST', { report_id: reportId, action });
+                toast('Action applied successfully', 'success');
+                renderQueue();
+            } catch (e) {
+                toast(e.message, 'danger');
+            }
+        };
+
+        renderQueue();
+    </script>
+</body>
+</html>

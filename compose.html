@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Compose</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .app-shell { grid-template-rows: auto 1fr; background: var(--bg-base); }
+        .compose-container {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: var(--space-6) var(--space-4);
+        }
+        
+        /* Transparent huge input */
+        .title-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            padding: 0;
+            margin-bottom: var(--space-4);
+            border-bottom: 1px dashed transparent;
+            transition: border-color var(--transition-fast);
+        }
+        .title-input:focus { outline: none; border-bottom-color: var(--accent); }
+        .title-input::placeholder { color: var(--text-ghost); }
+
+        .editor-container {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            margin-bottom: var(--space-4);
+        }
+        .editor-toolbar {
+            display: flex; gap: var(--space-2); padding: 8px; flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+        }
+        .composer-area {
+            padding: var(--space-4); min-height: 400px;
+            color: var(--text-primary); font-family: var(--font-body); font-size: 16px; outline: none;
+        }
+
+        .bottom-action-bar {
+            position: sticky;
+            bottom: 0;
+            padding: var(--space-4);
+            background: rgba(20, 20, 22, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .tag-input-container {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+            border: 1px solid var(--border); background: var(--bg-surface);
+            padding: 8px 12px; border-radius: var(--radius-sm);
+            margin-bottom: var(--space-4);
+        }
+        .tag-input {
+            background: transparent; border: none; color: var(--text-primary); font-family:var(--font-mono); font-size:14px;
+            flex: 1; min-width: 150px; outline: none;
+        }
+    </style>
+</head>
+<body class="app-shell">
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="feed.html" class="logo">NEXUS<span>.</span></a>
+            <div class="nav-links">
+                <a href="feed.html" class="btn btn-ghost">Cancel</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="compose-container">
+        
+        <input type="text" id="post-title" class="title-input" placeholder="What's on your mind?">
+        
+        <div class="flex gap-4 mb-4">
+            <select id="post-category" class="input" style="width: auto; padding: 12px 16px;">
+                <option value="" disabled selected>Select Category</option>
+                <option value="1">Philosophy</option>
+                <option value="2">Code</option>
+                <option value="3">Science</option>
+            </select>
+        </div>
+
+        <div class="tag-input-container" id="tag-box">
+            <!-- Pilled tags go here -->
+            <input type="text" id="post-tags" class="tag-input" placeholder="Type tags and hit Enter (max 5)">
+            <div id="tag-suggestions" style="position:absolute; background:var(--bg-elevated); border:1px solid var(--border); display:none; max-height:150px; overflow:auto; z-index:100; margin-top:40px;"></div>
+        </div>
+
+        <div class="editor-container">
+            <div class="editor-toolbar">
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-h2">H2</button>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-h3">H3</button>
+                <span class="text-ghost" style="padding: 4px;">|</span>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-b">B</button>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-i">I</button>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-s">S</button>
+                <span class="text-ghost" style="padding: 4px;">|</span>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-quote">Quote</button>
+                <button class="btn btn-ghost mono" style="padding:4px 8px;" id="btn-code">`</button>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-codeblock">Code Block</button>
+                <span class="text-ghost" style="padding: 4px;">|</span>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-link">🔗</button>
+                <button class="btn btn-ghost" style="padding:4px 8px;" id="btn-img">IMG</button>
+            </div>
+            <div class="composer-area" contenteditable="true" id="editor-area"></div>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px;">
+            <label class="flex gap-2 items-center text-secondary" style="font-size:14px; cursor:pointer;">
+                <input type="checkbox" id="subscribe-replies" checked style="accent-color: var(--accent);">
+                Subscribe to replies
+            </label>
+        </div>
+
+    </main>
+
+    <div class="bottom-action-bar">
+        <div class="mono text-muted" style="font-size: 12px;" id="draft-status">Ready</div>
+        <div class="flex gap-3">
+            <button class="btn btn-ghost" id="btn-draft">Save Draft</button>
+            <button class="btn btn-primary" id="btn-publish">Publish Post</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { api } from './js/api.js';
+        import { auth } from './js/auth.js';
+        import { Editor } from './js/editor.js';
+        import { toast, debounce } from './js/utils.js';
+
+        auth.requireAuth();
+
+        const ed = new Editor('editor-area');
+
+        // Toolbar bindings
+        document.getElementById('btn-h2').onclick = () => ed.h2();
+        document.getElementById('btn-h3').onclick = () => ed.h3();
+        document.getElementById('btn-b').onclick = () => ed.bold();
+        document.getElementById('btn-i').onclick = () => ed.italic();
+        document.getElementById('btn-s').onclick = () => ed.strike();
+        document.getElementById('btn-quote').onclick = () => ed.quote();
+        document.getElementById('btn-code').onclick = () => ed.code();
+        document.getElementById('btn-codeblock').onclick = () => ed.codeBlock();
+        document.getElementById('btn-link').onclick = () => ed.link();
+        document.getElementById('btn-img').onclick = () => ed.image();
+
+        // Tag Handling
+        const tagInput = document.getElementById('post-tags');
+        const tagBox = document.getElementById('tag-box');
+        let selectedTags = [];
+
+        const renderTags = () => {
+            // clear older pills
+            document.querySelectorAll('#tag-box .tag-pill').forEach(el => el.remove());
+            selectedTags.forEach((t, i) => {
+                const pill = document.createElement('span');
+                pill.className = 'tag-pill';
+                pill.innerHTML = `${t} <span style="margin-left:6px; cursor:pointer; color:var(--text-ghost);" data-idx="${i}">×</span>`;
+                tagBox.insertBefore(pill, tagInput);
+            });
+            tagInput.placeholder = selectedTags.length >= 5 ? "Max tags reached" : "Type tags and hit Enter (max 5)";
+            tagInput.disabled = selectedTags.length >= 5;
+        };
+
+        tagBox.addEventListener('click', (e) => {
+            if (e.target.tagName === 'SPAN' && e.target.dataset.idx !== undefined) {
+                selectedTags.splice(e.target.dataset.idx, 1);
+                renderTags();
+            }
+        });
+
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const v = tagInput.value.trim().toLowerCase();
+                if (v && selectedTags.length < 5 && !selectedTags.includes(v)) {
+                    selectedTags.push(v);
+                    tagInput.value = '';
+                    renderTags();
+                }
+            }
+        });
+
+        // Autosave logic
+        const statusEl = document.getElementById('draft-status');
+        const getDraftData = () => {
+            return {
+                title: document.getElementById('post-title').value,
+                category_id: document.getElementById('post-category').value,
+                tags: selectedTags,
+                body_html: ed.getHTML()
+            };
+        };
+
+        const saveDraft = async () => {
+            const data = getDraftData();
+            if (!data.title && !data.body_html.trim()) return; 
+            statusEl.textContent = 'Saving...';
+            try {
+                await api.request('posts/draft.php', 'POST', data);
+                statusEl.textContent = `Draft saved ${new Date().toLocaleTimeString()}`;
+            } catch(e) {
+                statusEl.textContent = 'Autosave failed';
+            }
+        };
+
+        // Auto save every 30s
+        setInterval(saveDraft, 30000);
+        document.getElementById('btn-draft').addEventListener('click', saveDraft);
+
+        // Load existing draft
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await api.request('posts/draft.php');
+                if (res.data) {
+                    if(confirm('You have an unsaved draft. Resume?')) {
+                        document.getElementById('post-title').value = res.data.title;
+                        document.getElementById('post-category').value = res.data.category_id || "";
+                        selectedTags = JSON.parse(res.data.tags_json || '[]');
+                        ed.setHTML(res.data.body_html);
+                        renderTags();
+                    }
+                }
+            } catch(e) {}
+        });
+
+        // Publish
+        document.getElementById('btn-publish').addEventListener('click', async () => {
+            const data = getDraftData();
+            data.body_html = `<p>${data.body_html.replace(/\n/g, '<br/>')}</p>`;
+            
+            try {
+                document.getElementById('btn-publish').disabled = true;
+                const res = await api.request('posts/create.php', 'POST', data);
+                window.location.href = `post.html?id=${res.id}`;
+            } catch (e) {
+                toast(e.message, 'danger');
+                // shake error effect
+                document.querySelector('.compose-container').style.transform = 'translateY(-5px)';
+                setTimeout(() => document.querySelector('.compose-container').style.transform = 'translateY(0)', 100);
+            } finally {
+                document.getElementById('btn-publish').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

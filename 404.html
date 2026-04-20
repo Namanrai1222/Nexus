@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Lost in the NEXUS</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .split-layout {
+            display: flex; height: 100vh; overflow: hidden;
+            background: var(--bg-base);
+        }
+        .hero {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: var(--space-6);
+        }
+        .glitch-text {
+            font-family: var(--font-display);
+            font-size: 160px;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: var(--space-4);
+            position: relative;
+            animation: pulse-slow 4s infinite alternate;
+        }
+        .sub-text {
+            font-size: 24px; color: var(--text-primary);
+            margin-bottom: var(--space-6);
+            font-weight: 500;
+        }
+        .mono-desc {
+            font-family: var(--font-mono); font-size: 14px; color: var(--text-ghost);
+            max-width: 400px; line-height: 1.6; margin-bottom: var(--space-8);
+        }
+        @keyframes pulse-slow {
+            0% { opacity: 0.8; text-shadow: 0 0 10px rgba(245, 166, 35, 0.2); }
+            100% { opacity: 1; text-shadow: 0 0 30px rgba(245, 166, 35, 0.6); }
+        }
+    </style>
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    <div class="split-layout">
+        <div class="hero">
+            <nav class="nav" style="position: absolute; top: 0; width: 100%; border-bottom: none; background: transparent;">
+                <div class="nav-container">
+                    <a href="feed.html" class="logo">NEXUS<span>.</span></a>
+                </div>
+            </nav>
+            <div class="glitch-text">404</div>
+            <div class="sub-text">Dead End Detected.</div>
+            <div class="mono-desc">
+                NULL POINTER. The node you are seeking has been deleted, never existed, or has been classified beyond your clearance tier.
+            </div>
+            <a href="feed.html" class="btn btn-primary" style="padding: 12px 32px; font-size: 16px;">Return to Feed</a>
+        </div>
+    </div>
+</body>
+</html>

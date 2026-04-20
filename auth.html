@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Authenticate</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body class="app-shell" style="grid-template-rows: 1fr;">
+    <div class="auth-layout">
+        <div class="auth-sidebar">
+            <a href="index.html" class="logo">NEXUS<span>.</span></a>
+            <div class="auth-quote-container" id="quote-container">
+                <div class="auth-quote active" id="quote-1">
+                    "If you can't explain it simply, you don't understand it well enough."
+                    <div class="auth-author mt-2">Albert Einstein</div>
+                </div>
+                <div class="auth-quote" id="quote-2">
+                    "It is the mark of an educated mind to be able to entertain a thought without accepting it."
+                    <div class="auth-author mt-2">Aristotle</div>
+                </div>
+                <div class="auth-quote" id="quote-3">
+                    "I cannot teach anybody anything. I can only make them think."
+                    <div class="auth-author mt-2">Socrates</div>
+                </div>
+            </div>
+            <div class="mono text-muted" style="font-size: 12px; position:absolute; bottom: var(--space-4);">SYSTEM READY // AWAITING CREDENTIALS</div>
+        </div>
+        
+        <div class="auth-main">
+            <div class="auth-form-container">
+                <!-- Navigation Tabs -->
+                <div class="tab-bar">
+                    <div class="tab active" id="tab-login" onclick="switchAuth('login')">Login</div>
+                    <div class="tab" id="tab-register" onclick="switchAuth('register')">Register</div>
+                </div>
+
+                <!-- Login Form -->
+                <form id="form-login" class="mt-4">
+                    <div class="input-group">
+                        <input type="email" id="login-email" class="input" placeholder=" " required>
+                        <label class="input-label" for="login-email">Email Address</label>
+                    </div>
+                    <div class="input-group" style="position:relative;">
+                        <input type="password" id="login-password" class="input" placeholder=" " required>
+                        <label class="input-label" for="login-password">Password</label>
+                        <span id="login-toggle" class="mono text-muted" style="position:absolute; right:16px; top:28px; cursor:pointer; font-size:12px;">SHOW</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-4">
+                        <label class="flex items-center gap-2" style="cursor:pointer; font-size:14px; color:var(--text-secondary);">
+                            <input type="checkbox" style="accent-color: var(--accent);"> Remember me
+                        </label>
+                        <a href="#" style="font-size:13px; color:var(--text-secondary);">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full" id="btn-login" style="padding: 14px;">Sign In</button>
+                    
+                    <div style="text-align:center; margin: var(--space-4) 0; color:var(--text-ghost); font-size: 13px;">— or continue with —</div>
+                    
+                    <div class="flex gap-3">
+                        <button type="button" class="btn btn-ghost w-full">Google</button>
+                        <button type="button" class="btn btn-ghost w-full">GitHub</button>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="form-register" class="mt-4" style="display: none;">
+                    <div class="input-group">
+                        <input type="text" id="reg-username" class="input" placeholder=" " required minlength="3">
+                        <label class="input-label" for="reg-username">Username</label>
+                        <span id="username-check" style="position:absolute; right:16px; top:24px;"></span>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="reg-email" class="input" placeholder=" " required>
+                        <label class="input-label" for="reg-email">Email Address</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="reg-password" class="input" placeholder=" " required>
+                        <label class="input-label" for="reg-password">Password</label>
+                        <div class="strength-meter" id="pw-strength">
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="reg-confirm" class="input" placeholder=" " required>
+                        <label class="input-label" for="reg-confirm">Confirm Password</label>
+                        <span id="confirm-error" class="input-error" style="display:none;">Passwords do not match</span>
+                    </div>
+                    <label class="flex gap-2 items-center mb-4 text-muted" style="font-size:13px; cursor:pointer;">
+                        <input type="checkbox" id="reg-terms" required style="accent-color: var(--accent);">
+                        I agree to the Rules of NEXUS
+                    </label>
+                    <button type="submit" class="btn btn-primary w-full" id="btn-register" style="padding: 14px;">Create Account</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from './js/auth.js';
+        import { debounce, toast } from './js/utils.js';
+
+        window.switchAuth = (tabName) => {
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            if (tabName === 'login') {
+                document.getElementById('form-login').style.display = 'block';
+                document.getElementById('form-register').style.display = 'none';
+            } else {
+                document.getElementById('form-login').style.display = 'none';
+                document.getElementById('form-register').style.display = 'block';
+            }
+        };
+
+        // Quote rotator
+        const quotes = document.querySelectorAll('.auth-quote');
+        let currentQuote = 0;
+        setInterval(() => {
+            quotes[currentQuote].classList.remove('active');
+            currentQuote = (currentQuote + 1) % quotes.length;
+            quotes[currentQuote].classList.add('active');
+        }, 5000);
+
+        // Password Show/Hide
+        const loginPw = document.getElementById('login-password');
+        const loginToggle = document.getElementById('login-toggle');
+        loginToggle.addEventListener('click', () => {
+            if (loginPw.type === 'password') {
+                loginPw.type = 'text';
+                loginToggle.textContent = 'HIDE';
+            } else {
+                loginPw.type = 'password';
+                loginToggle.textContent = 'SHOW';
+            }
+        });
+
+        // Username checker
+        const unameInput = document.getElementById('reg-username');
+        const unameCheck = document.getElementById('username-check');
+        const checkUname = debounce(async (e) => {
+            const val = e.target.value.trim();
+            if (val.length < 3) {
+                unameCheck.innerHTML = '';
+                return;
+            }
+            try {
+                const res = await fetch(`/php/api/auth/check-username.php?u=${encodeURIComponent(val)}`);
+                const data = await res.json();
+                if (data.available) {
+                    unameCheck.innerHTML = '<span style="color:var(--success)">✓</span>';
+                } else {
+                    unameCheck.innerHTML = '<span style="color:var(--danger)">✗</span>';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }, 400);
+        unameInput.addEventListener('input', checkUname);
+
+        // Password strength
+        const pwInput = document.getElementById('reg-password');
+        const meter = document.getElementById('pw-strength');
+        pwInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            let score = 0;
+            if (val.length > 7) score++;
+            if (val.match(/[A-Z]/)) score++;
+            if (val.match(/[0-9]/)) score++;
+            if (val.match(/[^A-Za-z0-9]/)) score++;
+            
+            meter.className = `strength-meter strength-${score}`;
+        });
+
+        // Form Handlers
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            try {
+                btn.disabled = true;
+                btn.textContent = 'Authenticating...';
+                const email = document.getElementById('login-email').value;
+                const pw = loginPw.value;
+                
+                await auth.login(email, pw);
+                toast('Login successful. System engaging.', 'success');
+                setTimeout(() => window.location.href = 'feed.html', 800);
+            } catch (err) {
+                toast(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+
+        document.getElementById('form-register').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-register');
+            const pw = pwInput.value;
+            const confirm = document.getElementById('reg-confirm').value;
+            
+            if (pw !== confirm) {
+                document.getElementById('confirm-error').style.display = 'block';
+                document.getElementById('reg-confirm').classList.add('error');
+                return;
+            }
+            document.getElementById('confirm-error').style.display = 'none';
+            document.getElementById('reg-confirm').classList.remove('error');
+
+            try {
+                btn.disabled = true;
+                btn.textContent = 'Forging Identity...';
+                const email = document.getElementById('reg-email').value;
+                const username = unameInput.value;
+                
+                await auth.register({ email, username, password: pw });
+                // Auto login
+                await auth.login(email, pw);
+                toast('Identity forged. Welcome to NEXUS.', 'success');
+                setTimeout(() => window.location.href = 'feed.html', 1000);
+            } catch (err) {
+                toast(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

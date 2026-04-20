@@ -1,0 +1,138 @@
+/* Layout styles for NEXUS */
+
+/* App Shell */
+.app-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+/* Navigation */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(13, 13, 15, 0.85); /* --bg-base with opacity */
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-3) 0;
+  transition: padding var(--transition-med);
+}
+
+.nav.scrolled {
+  padding: var(--space-2) 0;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+/* Authentication Split Screen */
+.auth-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.auth-sidebar {
+  flex: 1;
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-sidebar::before {
+  content: "NEXUS";
+  position: absolute;
+  top: 50%; left: -10%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 30vw;
+  color: var(--accent);
+  opacity: 0.02;
+  pointer-events: none;
+  font-weight: 700;
+}
+
+.auth-quote-container {
+  max-width: 400px;
+  margin-top: auto;
+  margin-bottom: auto;
+  z-index: 10;
+}
+
+.auth-quote {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-style: italic;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: var(--space-3);
+  opacity: 0;
+  transition: opacity 1s ease;
+  position: absolute;
+}
+.auth-quote.active { opacity: 1; position: relative;}
+
+.auth-author {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--bg-base);
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar-right {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-sidebar {
+    display: none;
+  }
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Where ideas earn their place.</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            text-align: center;
+            padding: var(--space-4);
+        }
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            line-height: 1.1;
+            margin-bottom: var(--space-4);
+            max-width: 900px;
+            margin-inline: auto;
+            letter-spacing: -1px;
+        }
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto var(--space-6) auto;
+        }
+        .cta-group {
+            display: flex;
+            gap: var(--space-3);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .features-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--space-6);
+            padding: var(--space-8) var(--space-4);
+            max-width: 1200px;
+            margin: 0 auto;
+            border-top: 1px solid var(--border);
+        }
+        .feature-item { display: flex; flex-direction: column; gap: var(--space-2); }
+        .feature-num { font-family: var(--font-mono); color: var(--accent); font-size: 14px;}
+        .feature-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .feature-desc { color: var(--text-secondary); font-size: 15px; }
+
+        .how-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: var(--space-8) var(--space-4);
+        }
+        .step {
+            display: flex;
+            gap: var(--space-6);
+            padding: var(--space-6) 0;
+            border-bottom: 1px solid var(--border);
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .step-num { font-family: var(--font-display); font-size: 4rem; color: var(--accent); line-height: 1; }
+        .step-content h3 { margin-bottom: var(--space-2); }
+
+        .trending-strip {
+            padding: var(--space-6) var(--space-4);
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;  
+            scrollbar-width: none;
+        }
+        .trending-strip::-webkit-scrollbar { display: none; }
+        .trending-container {
+            display: flex;
+            gap: var(--space-4);
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .footer {
+            padding: var(--space-6) var(--space-4); 
+            border-top: 2px solid var(--accent); 
+            margin-top: auto;
+            background: var(--bg-surface);
+        }
+        .footer-content {
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            flex-wrap: wrap; 
+            gap: var(--space-4);
+        }
+    </style>
+</head>
+<body class="app-shell">
+    <nav class="nav" id="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">NEXUS<span>.</span></a>
+            <div class="nav-links">
+                <a href="auth.html" class="btn btn-ghost">Sign In</a>
+                <a href="auth.html" class="btn btn-primary">Join NEXUS</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div style="z-index: 10;">
+                <h1 class="hero-title">Where ideas earn their place.</h1>
+                <p class="hero-subtitle">NEXUS is the forum for people who think before they post. No algorithmic feeds. No echo chambers. Just merit-based discussion.</p>
+                <div class="cta-group">
+                    <a href="auth.html" class="btn btn-primary" style="padding: 16px 32px; font-size: 17px;">Join NEXUS</a>
+                    <a href="#features" class="btn btn-ghost" style="padding: 16px 32px; font-size: 17px;">Read Manifesto</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="trending-strip">
+            <div class="trending-container">
+                <span class="mono text-muted" style="font-size: 13px; margin-right: var(--space-2);">TRENDING NOW:</span>
+                <a href="#" class="tag-pill">Philosophy <span class="text-muted" style="margin-left:4px;">1.2k</span></a>
+                <a href="#" class="tag-pill">Code <span class="text-muted" style="margin-left:4px;">8k</span></a>
+                <a href="#" class="tag-pill">Science <span class="text-muted" style="margin-left:4px;">430</span></a>
+                <a href="#" class="tag-pill">History <span class="text-muted" style="margin-left:4px;">98</span></a>
+                <a href="#" class="tag-pill">Design <span class="text-muted" style="margin-left:4px;">3.4k</span></a>
+                <a href="#" class="tag-pill">Economics <span class="text-muted" style="margin-left:4px;">2k</span></a>
+            </div>
+        </section>
+
+        <section id="features" class="features-strip">
+            <div class="feature-item">
+                <span class="feature-num">01.</span>
+                <span class="feature-title">Earn Your Score</span>
+                <span class="feature-desc">Reputation means something. Accrue status through high-quality discourse.</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-num">02.</span>
+                <span class="feature-title">Structured Threads</span>
+                <span class="feature-desc">Deep branching logic keeps massive debates legible and organized.</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-num">03.</span>
+                <span class="feature-title">No Algorithmic Feed</span>
+                <span class="feature-desc">Chronological and vote-based. The machine doesn't pick your thoughts.</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-num">04.</span>
+                <span class="feature-title">Verified Expertise</span>
+                <span class="feature-desc">Dedicated flairs for genuine domain experts. Know who you are reading.</span>
+            </div>
+        </section>
+
+        <section class="how-section">
+            <h2 class="text-center" style="font-size: 2.5rem; margin-bottom: var(--space-6);">The Editorial Process</h2>
+            
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Post With Intent</h3>
+                    <p class="text-muted">Draft your thoughts away from the noise. Our distraction-free composer ensures your ideas are well-formed before they face the public.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Defend & Debate</h3>
+                    <p class="text-muted">Enter the arena. The NEXUS community analyzes claims stringently but fairly. Good faith debate is enforced programmatically and culturally.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Rise on Merit</h3>
+                    <p class="text-muted">Survive the crucible. The best answers rise to the top and become canonical. The authors earn persistent reputation that travels with them.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div style="font-family: var(--font-mono); color: var(--text-secondary); font-size: 13px;">
+                © 2026 NEXUS. Built for thinkers.
+            </div>
+            <div style="display: flex; gap: var(--space-4); color: var(--text-secondary); font-size: 13px; font-family: var(--font-mono);">
+                <a href="#">/ About</a>
+                <a href="#">/ Rules</a>
+                <a href="#">/ API</a>
+                <a href="#">/ Careers</a>
+            </div>
+            <div style="display: flex; gap: var(--space-4); color: var(--text-secondary); font-size: 13px;">
+                <a href="#">GitHub</a>
+                <a href="#">Twitter</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll observer for nav
+        const nav = document.getElementById('main-nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.step').forEach(step => observer.observe(step));
+    </script>
+</body>
+</html>

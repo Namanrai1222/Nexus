@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Post</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .app-shell { grid-template-rows: auto 1fr; }
+        .post-layout {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: var(--space-8);
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: var(--space-6) var(--space-4);
+        }
+        .post-header { margin-bottom: var(--space-6); border-bottom: 1px solid var(--border); padding-bottom: var(--space-4); }
+        .post-title { font-size: 32px; font-weight: 700; margin-bottom: var(--space-3); line-height: 1.2; }
+        .post-body {
+            font-size: 17px;
+            line-height: 1.8;
+            max-width: 660px;
+            margin-bottom: var(--space-6);
+        }
+        .post-body p { margin-bottom: var(--space-3); }
+        
+        .vote-block {
+            display: flex; gap: var(--space-3); align-items: center;
+            background: var(--bg-surface); padding: 8px 16px; border-radius: 20px;
+            border: 1px solid var(--border);
+            width: fit-content; margin-bottom: var(--space-4);
+        }
+
+        .reply-card {
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+            position: relative;
+        }
+        .reply-card.nested {
+            margin-left: 24px;
+            border-left: 2px solid var(--border);
+        }
+        .reply-card.accepted { border-left: 3px solid var(--success); }
+        .reply-meta { display: flex; align-items: center; gap: 8px; margin-bottom: var(--space-2); font-size: 13px; color: var(--text-secondary); }
+        .reply-body { font-size: 15px; line-height: 1.6; margin-bottom: var(--space-3); }
+
+        .composer-toolbar {
+            display: flex; gap: var(--space-2); padding: 8px;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+        }
+        .composer-area {
+            border: 1px solid var(--border); background: var(--bg-base);
+            padding: var(--space-3); min-height: 120px; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            color: var(--text-primary); font-family: var(--font-body); font-size: 15px; outline: none;
+            margin-bottom: var(--space-2);
+        }
+        .composer-area:focus { border-color: var(--accent); }
+    </style>
+</head>
+<body class="app-shell">
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="feed.html" class="logo">NEXUS<span>.</span></a>
+            <div class="nav-links">
+                <a href="feed.html" class="btn btn-ghost" style="padding: 6px 12px; font-size: 13px;">Back to Feed</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="post-layout">
+        <!-- Main Content -->
+        <main>
+            <div id="post-header-container" class="post-header">
+                <div class="mono text-muted mb-2" style="font-size: 12px;">LOADING...</div>
+            </div>
+
+            <div id="post-body-container" class="post-body"></div>
+
+            <div class="flex gap-3 mb-6" style="border-bottom: 1px solid var(--border); padding-bottom: 24px;">
+                <button class="btn btn-ghost" onclick="toast('Pending feature', 'info')">🔖 Bookmark</button>
+                <button class="btn btn-ghost" onclick="toast('Copied', 'success')">🔗 Share</button>
+            </div>
+
+            <!-- Composer -->
+            <div class="reply-composer" id="composer-container" style="display:none;">
+                <h3 class="display-text" style="font-size:24px;">Join the discussion</h3>
+                <div class="composer-toolbar mt-4">
+                    <button class="btn btn-ghost" style="padding:4px 8px;">B</button>
+                    <button class="btn btn-ghost" style="padding:4px 8px;">I</button>
+                    <button class="btn btn-ghost" style="padding:4px 8px;">S</button>
+                    <button class="btn btn-ghost mono" style="padding:4px 8px;">`</button>
+                    <button class="btn btn-ghost" style="padding:4px 8px;">”</button>
+                </div>
+                <div class="composer-area" contenteditable="true" id="reply-editor" data-placeholder="Type your answer..."></div>
+                <div class="flex justify-between items-center">
+                    <span class="mono text-muted" style="font-size:12px;" id="char-count">0 / 10000</span>
+                    <button class="btn btn-primary" id="btn-post-reply" style="padding: 8px 16px;">Post Reply</button>
+                </div>
+            </div>
+            
+            <div id="auth-prompt" style="padding:var(--space-4); border:1px solid var(--border); text-align:center; display:none; background:var(--bg-surface);">
+                <div class="mb-3">Login to participate in this discussion.</div>
+                <a href="auth.html" class="btn btn-primary" style="padding:8px 16px;">Sign In</a>
+            </div>
+
+            <!-- Replies Section -->
+            <div class="mt-8">
+                <h3 class="mono mb-4" style="color:var(--text-secondary);" id="reply-count-banner">REPLIES (0)</h3>
+                <div class="tab-bar mb-4" id="reply-sort-tabs">
+                    <div class="tab active" data-sort="best">Best</div>
+                    <div class="tab" data-sort="newest">Newest</div>
+                    <div class="tab" data-sort="oldest">Oldest</div>
+                </div>
+                
+                <div id="replies-container"></div>
+            </div>
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="sidebar-right">
+            <div class="widget" id="author-card"></div>
+        </aside>
+    </div>
+
+    <script type="module">
+        import { api } from './js/api.js';
+        import { auth } from './js/auth.js';
+        import { timeAgo, escapeHTML, toast } from './js/utils.js';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('id');
+        let currentSort = 'best';
+
+        if (!postId) window.location.href = 'feed.html';
+
+        if (auth.isLoggedIn()) {
+            document.getElementById('composer-container').style.display = 'block';
+        } else {
+            document.getElementById('auth-prompt').style.display = 'block';
+        }
+
+        // Post Reply HTML logic
+        const editor = document.getElementById('reply-editor');
+        const charCount = document.getElementById('char-count');
+        
+        editor.addEventListener('input', () => charCount.textContent = `${editor.innerText.length} / 10000`);
+        
+        document.getElementById('btn-post-reply')?.addEventListener('click', async () => {
+            const text = editor.innerText.trim();
+            if(!text) return toast('Empty reply not allowed', 'danger');
+            
+            try {
+                const html = text.split('\n\n').map(p => `<p>${escapeHTML(p)}</p>`).join('');
+                await api.request('replies/create.php', 'POST', { post_id: postId, body_html: html });
+                toast('Reply posted', 'success');
+                editor.innerText = '';
+                charCount.textContent = '0 / 10000';
+                loadReplies();
+            } catch(e) { toast(e.message, 'danger'); }
+        });
+
+        const loadPost = async () => {
+            try {
+                const res = await api.request(`posts/get.php?id=${postId}`);
+                const p = res.data;
+                const tagHTML = p.tags.map(t => `<a href="feed.html?tag=${encodeURIComponent(t)}" class="tag-pill">${escapeHTML(t)}</a>`).join('');
+                
+                document.getElementById('post-header-container').innerHTML = `
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="mono text-muted" style="font-size:13px;">NEXUS > <span style="color:${escapeHTML(p.category_color)}">${escapeHTML(p.category_name)}</span></span>
+                    </div>
+                    <h1 class="post-title">${p.is_pinned?'<span style="color:var(--accent)">📌</span> ':''}${escapeHTML(p.title)}</h1>
+                    <div class="flex items-center gap-4 text-ghost" style="font-size:13px;">
+                        <span class="flex items-center gap-2">
+                            <div style="width:20px;height:20px;border-radius:50%;background:var(--accent); display:flex; align-items:center; justify-content:center; color:#000; font-family:var(--font-mono); font-size:10px;">${escapeHTML(p.username[0].toUpperCase())}</div>
+                            <span class="mono" style="color:var(--text-primary);">${escapeHTML(p.username)}</span>
+                            <span class="badge" style="background:transparent; border:1px solid var(--accent-dim); color:var(--accent); padding:0 4px; font-family:var(--font-mono); font-size:11px;">${p.reputation}</span>
+                        </span>
+                        <span>${timeAgo(p.created_at)}</span>
+                    </div>
+                    <div class="flex gap-2 mt-4">${tagHTML}</div>
+                `;
+
+                document.getElementById('post-body-container').innerHTML = `
+                    <div class="vote-block">
+                        <button class="vote-btn" onclick="window.castVote(${p.id}, null, 1)">▲</button>
+                        <span class="vote-score">${p.upvotes - p.downvotes}</span>
+                        <button class="vote-btn" onclick="window.castVote(${p.id}, null, -1)">▼</button>
+                    </div>
+                    ${p.body_html}
+                `;
+
+                document.getElementById('author-card').innerHTML = `
+                    <div class="widget-title">About the Author</div>
+                    <div class="card text-center" style="padding:var(--space-5);">
+                        <div style="width:64px;height:64px;border-radius:50%;border:2px solid var(--accent);margin:0 auto var(--space-3) auto; display:flex; align-items:center; justify-content:center; color:var(--text-primary); font-family:var(--font-mono); font-size:24px;">${escapeHTML(p.username[0].toUpperCase())}</div>
+                        <div class="mono" style="font-size:16px; color:var(--text-primary);">${escapeHTML(p.username)}</div>
+                        <div class="text-secondary mt-2" style="font-size:13px;">${escapeHTML(p.bio || 'Thinker on NEXUS')}</div>
+                        <div class="flex justify-center gap-4 mt-4">
+                            <div><div class="display-text" style="font-size:20px;">${p.reputation}</div><div class="text-ghost" style="font-size:11px;">REP</div></div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('post-header-container').innerHTML = `<span style="color:var(--danger)">Post not found or unauthorized</span>`;
+            }
+        };
+
+        const renderTree = (replies, level) => {
+            let html = '';
+            replies.forEach(r => {
+                html += `
+                <div class="reply-card ${level > 0 ? 'nested' : ''} ${r.is_accepted ? 'accepted' : ''}">
+                    <div class="reply-meta">
+                        <span class="mono" style="color:var(--text-primary);">${escapeHTML(r.username)}</span>
+                        <span style="color:var(--accent); font-size:11px; font-family:var(--font-mono);">[${r.reputation}]</span>
+                        <span class="text-ghost">· ${timeAgo(r.created_at)}</span>
+                    </div>
+                    <div class="reply-body">${r.body_html}</div>
+                    <div class="flex gap-4">
+                        <div class="flex gap-2 items-center text-ghost" style="font-size:13px;">
+                            <button class="vote-btn" onclick="window.castVote(null, ${r.id}, 1)">▲</button>
+                            <span class="mono" style="color:var(--text-primary);">${r.upvotes - r.downvotes}</span>
+                            <button class="vote-btn" onclick="window.castVote(null, ${r.id}, -1)">▼</button>
+                        </div>
+                        <button class="btn btn-ghost" style="padding:4px 8px; font-size:12px;" onclick="toast('Reply to reply pending', 'info')">Reply</button>
+                    </div>
+                </div>
+                `;
+                if(r.children && r.children.length > 0 && level < 3) {
+                    html += renderTree(r.children, level + 1);
+                }
+            });
+            return html;
+        };
+
+        const loadReplies = async () => {
+            try {
+                const res = await api.request(`replies/list.php?post_id=${postId}&sort=${currentSort}`);
+                document.getElementById('replies-container').innerHTML = renderTree(res.data, 0);
+                
+                const countNodes = (arr) => arr.reduce((acc, obj) => acc + 1 + (obj.children ? countNodes(obj.children) : 0), 0);
+                document.getElementById('reply-count-banner').innerText = `REPLIES (${countNodes(res.data)})`;
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        window.castVote = async (pId, rId, val) => {
+            try {
+                await api.request('votes/cast.php', 'POST', { post_id: pId, reply_id: rId, value: val });
+                toast('Vote recorded', 'success');
+                if (pId) loadPost(); else loadReplies();
+            } catch(e) { toast(e.message, 'danger'); }
+        };
+
+        document.getElementById('reply-sort-tabs').addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab')) {
+                document.querySelectorAll('#reply-sort-tabs .tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                currentSort = e.target.dataset.sort;
+                loadReplies();
+            }
+        });
+
+        loadPost();
+        loadReplies();
+    </script>
+</body>
+</html>
